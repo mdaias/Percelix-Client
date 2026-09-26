@@ -6,7 +6,6 @@ import { auth } from '../../firebase/firebase.init';
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
-
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -15,8 +14,8 @@ const AuthProvider = ({ children }) => {
         return createUserWithEmailAndPassword(auth, email, password)
     }
 
-    const signInUser = (email, password) =>{
-         setLoading(true);
+    const signInUser = (email, password) => {
+        setLoading(true);
         return signInWithEmailAndPassword(auth, email, password)
     }
 
@@ -29,14 +28,17 @@ const AuthProvider = ({ children }) => {
         setLoading(true);
         return signOut(auth);
     }
-     const updateUserProfile = (profile) =>{
+
+    const updateUserProfile = (profile) =>{
         return updateProfile(auth.currentUser, profile)
     }
+
     // observe user state
     useEffect(() => {
         const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
+            console.log(currentUser)
         })
         return () => {
             unSubscribe();

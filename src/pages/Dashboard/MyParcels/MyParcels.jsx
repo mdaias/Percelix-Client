@@ -11,7 +11,7 @@ const MyParcels = () => {
     const { user } = useAuth();
     const axiosSecure = useAxiosSecure();
 
-    const { data: parcels = [] , refetch} = useQuery({
+    const { data: parcels = [], refetch } = useQuery({
         queryKey: ['my-parcels', user?.email],
         queryFn: async () => {
             const res = await axiosSecure.get(`/parcels?email=${user.email}`);
@@ -19,7 +19,7 @@ const MyParcels = () => {
         }
     })
 
-     const handleParcelDelete = id => {
+    const handleParcelDelete = id => {
         console.log(id);
 
         Swal.fire({
@@ -56,6 +56,20 @@ const MyParcels = () => {
 
     }
 
+    const handlePayment = async (parcel) => {
+        const parcelInfo = {
+            cost: parcel.cost,
+            parcelId: parcel._id, 
+            senderEmail: parcel.senderEmail,
+            parcelName: parcel.parcelName,
+            trackingId: parcel.trackingId
+        }
+        const res = await axiosSecure.post('/payment-checkout-session', parcelInfo);
+
+        // console.log(res.data.url);
+        window.location.assign(res.data.url);
+    }
+
     return (
         <div>
             <h2>All of my parcels : {parcels.length}</h2>
@@ -68,6 +82,7 @@ const MyParcels = () => {
                             <th>Name</th>
                             <th>Cost</th>
                             <th>Payment</th>
+                            <th>Tracking Id</th>
                             <th>Delivery Status</th>
                             <th>Actions</th>
                         </tr>
@@ -75,21 +90,22 @@ const MyParcels = () => {
                     <tbody>
                         {
                             parcels.map((parcel, index) => <tr key={parcel._id}>
-                             <th>{index + 1}</th>
+                                <th>{index + 1}</th>
                                 <td>{parcel.parcelName}</td>
                                 <td>{parcel.cost}</td>
                                 <td>
                                     {
                                         parcel.paymentStatus === 'paid' ?
-                                            <span className='text-green-400'>Paid</span>
+                                            <span className='text-green-800'>Paid</span>
                                             :
-                                            <Link to={`/dashboard/payment/${parcel._id}`}>
-                                                <button className="btn btn-sm btn-primary text-black">Pay</button>
-                                            </Link>
+                                            <button onClick={() => handlePayment(parcel)} className="btn btn-sm btn-primary text-black">Pay</button>
+
                                     }
                                 </td>
+                                <td>
+                                    <Link to={`/parcel-track/${parcel.trackingId}`}> {parcel.trackingId}</Link>
+                                </td>
                                 <td>{parcel.deliveryStatus}</td>
-                                
                                 <td>
                                     <button className='btn btn-square hover:bg-primary'>
                                         <FaMagnifyingGlass />
@@ -105,7 +121,7 @@ const MyParcels = () => {
                                 </td>
                             </tr>)
                         }
-                        
+
                     </tbody>
                 </table>
             </div>
